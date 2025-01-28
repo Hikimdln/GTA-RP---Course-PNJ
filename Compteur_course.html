@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de Courses PNJ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex: 1;
+        }
+        h2 {
+            text-align: center;
+            color: #007BFF;
+        }
+        label {
+            font-weight: bold;
+        }
+        input {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 8px;
+            background: #f1f1f1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .total {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        footer {
+            text-align: center;
+            font-size: 14px;
+            color: #777;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Calculateur de Courses PNJ</h2>
+        <div>
+            <label for="amount">Montant reçu (XPF) :</label>
+            <input type="number" id="amount" placeholder="Entrez le montant" onkeypress="if(event.key === 'Enter') addPayment()" />
+            <button onclick="addPayment()">Ajouter</button>
+        </div>
+        <ul id="paymentList"></ul>
+        <div class="total">
+            Total : <span id="total">0</span> XPF
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Mana Terai GTA RP. Tous droits réservés.
+    </footer>
+
+    <script>
+        let total = 0;
+        let clientNumber = 1; // On commence avec le client 1
+        let clients = []; // Tableau pour suivre les clients et leur montant
+
+        function addPayment() {
+            const amountInput = document.getElementById('amount');
+            const paymentList = document.getElementById('paymentList');
+            const totalDisplay = document.getElementById('total');
+
+            const amount = parseFloat(amountInput.value);
+
+            if (!isNaN(amount) && amount > 0) {
+                total += amount;
+
+                // Ajouter un nouveau client
+                const client = { id: clientNumber, amount: amount };
+                clients.push(client);
+
+                const listItem = document.createElement('li');
+                const textSpan = document.createElement('span');
+                textSpan.textContent = `Client ${clientNumber} : ${Math.round(amount)} XPF`;
+
+                const editButton = document.createElement('button');
+                editButton.textContent = "Modifier";
+                editButton.style.marginLeft = "10px";
+                editButton.onclick = function () {
+                    const newAmount = prompt("Entrez le nouveau montant en XPF :", Math.round(client.amount));
+                    if (!isNaN(newAmount) && newAmount > 0) {
+                        const updatedAmount = parseFloat(newAmount);
+                        total = total - client.amount + updatedAmount;
+                        client.amount = updatedAmount; // Mise à jour du montant du client
+                        textSpan.textContent = `Client ${client.id} : ${Math.round(updatedAmount)} XPF`;
+                        totalDisplay.textContent = Math.round(total);
+                    } else {
+                        alert("Montant invalide !");
+                    }
+                };
+
+                listItem.appendChild(textSpan);
+                listItem.appendChild(editButton);
+                paymentList.appendChild(listItem);
+
+                totalDisplay.textContent = Math.round(total);
+
+                amountInput.value = '';
+                clientNumber++; // Incrémenter le numéro du client après chaque ajout
+            } else {
+                alert("Veuillez entrer un montant valide !");
+            }
+        }
+
+        // Désactiver le clic droit
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Désactiver F12 (inspecteur)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
+                e.preventDefault();
+            }
+            // Désactiver F11 (plein écran)
+            if (e.key === 'F11') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>
