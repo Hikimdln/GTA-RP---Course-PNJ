@@ -65,6 +65,12 @@
             justify-content: space-between;
             align-items: center;
         }
+        .stats {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 10px;
+            text-align: center;
+        }
         .total {
             font-weight: bold;
             font-size: 18px;
@@ -90,9 +96,12 @@
             <input type="number" id="amount" placeholder="Entrez le montant" onkeypress="if(event.key === 'Enter') addPayment()" />
             <button onclick="addPayment()">Ajouter</button>
         </div>
-        <div class="total">
-            Total : <span id="total">0</span> XPF
+        <div class="stats">
+            Clients : <span id="clientTotal">0</span> | 
+            Total : <span id="total">0</span> XPF |
+            Total x2 : <span id="totalDouble">0</span> XPF
         </div>
+
         <ul id="paymentList"></ul>
     </div>
 
@@ -102,20 +111,24 @@
 
     <script>
         let total = 0;
-        let clientNumber = 1; // On commence avec le client 1
-        let clients = []; // Tableau pour suivre les clients et leur montant
+        let clientNumber = 0; // On commence à 0
+        let clients = []; // Tableau pour stocker les clients
+
+        function updateStats() {
+            document.getElementById('clientTotal').textContent = clients.length;
+            document.getElementById('total').textContent = Math.round(total);
+            document.getElementById('totalDouble').textContent = Math.round(total * 2);
+        }
 
         function addPayment() {
             const amountInput = document.getElementById('amount');
             const paymentList = document.getElementById('paymentList');
-            const totalDisplay = document.getElementById('total');
 
             const amount = parseFloat(amountInput.value);
 
             if (!isNaN(amount) && amount > 0) {
                 total += amount;
-
-                // Ajouter un nouveau client
+                clientNumber++;
                 const client = { id: clientNumber, amount: amount };
                 clients.push(client);
 
@@ -131,25 +144,22 @@
                     if (!isNaN(newAmount) && newAmount > 0) {
                         const updatedAmount = parseFloat(newAmount);
                         total = total - client.amount + updatedAmount;
-                        client.amount = updatedAmount; // Mise à jour du montant du client
+                        client.amount = updatedAmount;
                         textSpan.textContent = `Client ${client.id} : ${Math.round(updatedAmount)} XPF`;
-                        totalDisplay.textContent = Math.round(total);
+                        updateStats();
                     } else {
                         alert("Montant invalide !");
                     }
                 };
 
-                // Ajout du bouton Supprimer
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = "Supprimer";
                 deleteButton.style.marginLeft = "10px";
                 deleteButton.onclick = function () {
-                    // Retirer le client du tableau
                     clients = clients.filter(c => c.id !== client.id);
-                    total -= client.amount; // Ajuster le total
-                    totalDisplay.textContent = Math.round(total);
-                    // Supprimer l'élément de la liste
+                    total -= client.amount;
                     listItem.remove();
+                    updateStats();
                 };
 
                 listItem.appendChild(textSpan);
@@ -157,10 +167,8 @@
                 listItem.appendChild(deleteButton);
                 paymentList.appendChild(listItem);
 
-                totalDisplay.textContent = Math.round(total);
-
+                updateStats();
                 amountInput.value = '';
-                clientNumber++; // Incrémenter le numéro du client après chaque ajout
             } else {
                 alert("Veuillez entrer un montant valide !");
             }
@@ -171,12 +179,11 @@
             e.preventDefault();
         });
 
-        // Désactiver F12 (inspecteur)
+        // Désactiver F12 et autres raccourcis
         document.addEventListener('keydown', function(e) {
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
                 e.preventDefault();
             }
-            // Désactiver F11 (plein écran)
             if (e.key === 'F11') {
                 e.preventDefault();
             }
